@@ -1,0 +1,38 @@
+services:
+  ms-stock:
+    build:
+      context: .
+    image: ms-stock:v1.1
+    container_name: stock_service
+    environment:
+      - FLASK_ENV=${FLASK_ENV}        #cambiar según el entorno a usar (development/production)
+      # Configuración de PostgreSQL
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=ecomercedb
+      - POSTGRES_PORT=${POSTGRES_PORT}
+
+      # Configuración de Redis
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+    env_file:
+      - .env
+
+    restart: always
+    volumes:
+      - ./src:/app  # Sincroniza tu carpeta local con la del contenedor
+
+    networks:
+      - red1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ms-stock.rule=Host(`stock.localhost`) && PathPrefix(`/api/v1`)"
+      - "traefik.http.services.ms-stock.loadbalancer.server.port=5001"
+    deploy:
+      replicas: 1  # Número de instancias que deseas
+networks:
+  red1:
+    external: true
