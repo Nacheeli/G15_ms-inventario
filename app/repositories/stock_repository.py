@@ -14,7 +14,7 @@ class StockRepository(Repository_add, Repository_get, Repository_delete):
             return entity
         except Exception as e:
             db.session.rollback()
-            raise e  # Propaga la excepción para manejo externo
+            raise e
 
     def get_all(self) -> List[Stock]:
         return Stock.query.all()

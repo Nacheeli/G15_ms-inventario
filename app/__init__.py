@@ -1,10 +1,10 @@
 import os
 from flask import Flask
 from flask_caching import Cache
+import redis
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import redis
 import logging
 from app.config import cache_config, factory
 
@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 db = SQLAlchemy()
 cache = Cache()
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
 redis_host = os.getenv('REDIS_HOST', 'localhost')
 redis_port = int(os.getenv('REDIS_PORT', 6379))
@@ -21,14 +22,6 @@ redis_db = int(os.getenv('REDIS_DB', 0))
 
 # URI de Redis para Flask-Limiter
 redis_uri = f"redis://:{redis_password}@{redis_host}:{redis_port}/{redis_db}"
-
-redis_client = redis.StrictRedis(
-    host=redis_host,
-    port=redis_port,
-    db=redis_db,
-    password=redis_password,
-    decode_responses=True
-)
 
 limiter = Limiter(
     key_func=get_remote_address,
